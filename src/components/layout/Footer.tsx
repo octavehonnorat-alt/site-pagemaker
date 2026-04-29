@@ -18,9 +18,9 @@ const stagger = { visible: { transition: { staggerChildren: 0.08 } } };
 
 const navLinks = [
   { label: "Accueil", href: "/" },
-  { label: "Nos Formules", href: "/formules" },
+  { label: "Formules & Tarifs", href: "/formules" },
   { label: "Galerie", href: "/galerie" },
-  { label: "Notre Vérité", href: "/notre-verite" },
+  { label: "Notre Méthode", href: "/notre-verite" },
   { label: "Contact", href: "/contact" },
 ];
 
