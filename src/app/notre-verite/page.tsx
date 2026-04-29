@@ -5,12 +5,12 @@ import Link from "next/link";
 import { ArrowRight, Shield, Zap, Eye, MessageSquare, Handshake, Award, Quote } from "lucide-react";
 import { MagneticButton } from "@/components/ui/MagneticButton";
 
-const EASE = [0.16, 1, 0.3, 1] as const;
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
   visible: (i: number = 0) => ({
     opacity: 1, y: 0,
-    transition: { duration: 0.7, delay: i * 0.1, ease: EASE as unknown as [number, number, number, number] }
+    transition: { duration: 0.7, delay: i * 0.1, ease: EASE }
   }),
 };
 const stagger = { visible: { transition: { staggerChildren: 0.12 } } };
@@ -97,7 +97,7 @@ export default function NotreVeritePage() {
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: EASE as unknown as [number, number, number, number] }}
+            transition={{ duration: 0.8, ease: EASE }}
             className="max-w-3xl mx-auto text-center"
           >
             <Quote size={40} className="text-[var(--pm-coral)] mx-auto mb-8 opacity-80" />

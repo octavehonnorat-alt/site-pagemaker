@@ -470,7 +470,7 @@ export default function HomePage() {
                 >
                   <s.icon size={30} className="text-[var(--pm-coral)]" />
                   <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[var(--pm-coral)] text-white text-xs font-bold flex items-center justify-center">
-                    {parseInt(s.step)}
+                    {parseInt(s.step, 10)}
                   </span>
                 </motion.div>
                 <h3 className="text-lg font-semibold text-[var(--pm-indigo)] mb-4">{s.title}</h3>
