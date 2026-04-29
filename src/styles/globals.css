@@ -368,3 +368,15 @@ button {
   box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
   transform: translateY(-1px);
 }
+
+/* ─── Section dark background ─── */
+
+.section-dark {
+  background: var(--pm-indigo);
+  color: white;
+}
+
+/* ─── Tabular nums for counters ─── */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}

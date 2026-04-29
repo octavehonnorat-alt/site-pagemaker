@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef, useEffect, useState } from "react";
+import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Check, Shield, Heart, Zap, Globe, Palette, Code, Users } from "lucide-react";
@@ -20,6 +21,55 @@ const fadeUp = {
 const stagger = {
   visible: { transition: { staggerChildren: 0.12 } },
 };
+
+/* ═══════════ Animated Counter ═══════════ */
+function AnimatedCounter({ value, label }: { value: string; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-80px" });
+  const [displayed, setDisplayed] = useState("0");
+
+  // Extract numeric prefix and suffix
+  const match = value.match(/^([\d.]+)(.*)$/);
+  const numericEnd = match ? parseFloat(match[1]) : null;
+  const suffix = match ? match[2] : value;
+
+  useEffect(() => {
+    if (!inView || numericEnd === null) {
+      setDisplayed(value);
+      return;
+    }
+    const duration = 1600;
+    const fps = 60;
+    const steps = Math.round(duration / (1000 / fps));
+    let frame = 0;
+    const timer = setInterval(() => {
+      frame++;
+      const progress = Math.min(frame / steps, 1);
+      // Ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const current = numericEnd * eased;
+      const formatted = Number.isInteger(numericEnd)
+        ? Math.floor(current).toString()
+        : current.toFixed(1);
+      setDisplayed(formatted + suffix);
+      if (frame >= steps) clearInterval(timer);
+    }, 1000 / fps);
+    return () => clearInterval(timer);
+  }, [inView, numericEnd, suffix, value]);
+
+  return (
+    <motion.div
+      ref={ref}
+      className="text-center"
+      initial={{ opacity: 0, scale: 0.7, y: 20 }}
+      animate={inView ? { opacity: 1, scale: 1, y: 0 } : {}}
+      transition={{ type: "spring", stiffness: 180, damping: 16 }}
+    >
+      <p className="text-4xl md:text-5xl font-bold text-[var(--pm-indigo)] tabular-nums">{inView ? displayed : "0"}</p>
+      <p className="text-sm text-[var(--pm-muted)] mt-2">{label}</p>
+    </motion.div>
+  );
+}
 
 /* ═══════════ Pricing Data ═══════════ */
 const plans = [
@@ -72,22 +122,22 @@ const values = [
   {
     icon: Shield,
     title: "100% propriétaire",
-    desc: "Votre site et votre nom de domaine vous appartiennent. Point final.",
+    desc: "Votre site et votre nom de domaine vous appartiennent entièrement. Point final.",
   },
   {
     icon: Heart,
     title: "Zéro jargon",
-    desc: "On dit \"un site rapide et visible sur Google\", pas \"optimisation CSS et balises H1\".",
+    desc: "On dit « un site rapide et visible sur Google », pas « optimisation SEO et balises H1 ».",
   },
   {
     icon: Zap,
-    title: "Rapide et efficace",
-    desc: "Votre site est livré en 7 à 14 jours. Pas dans 3 mois.",
+    title: "Livré en 7 à 14 jours",
+    desc: "Pas dans 3 mois. On respecte chaque délai qu'on annonce, sans exception.",
   },
   {
     icon: Users,
     title: "Accompagnement humain",
-    desc: "On vous aide à choisir votre nom de domaine, votre hébergement, tout.",
+    desc: "Nom de domaine, hébergement, formation — on est là à chaque étape, vraiment.",
   },
 ];
 
@@ -100,8 +150,16 @@ export default function HomePage() {
       <section className="relative min-h-[100dvh] flex items-center overflow-hidden pb-20" style={{ paddingTop: "clamp(10rem, 14vw, 14rem)" }}>
         {/* Background decoration */}
         <div className="absolute top-0 right-0 w-[60%] h-full bg-[var(--pm-peach)] rounded-bl-[80px] opacity-40 pointer-events-none" />
-        <div className="absolute top-20 right-20 w-64 h-64 rounded-full bg-[var(--pm-coral)] opacity-[0.07] blur-3xl pointer-events-none" />
-        <div className="absolute bottom-20 left-10 w-48 h-48 rounded-full bg-[#FFA500] opacity-[0.06] blur-3xl pointer-events-none" />
+        <motion.div
+          className="absolute top-20 right-20 w-72 h-72 rounded-full bg-[var(--pm-coral)] opacity-[0.07] blur-3xl pointer-events-none"
+          animate={{ scale: [1, 1.15, 1], opacity: [0.07, 0.11, 0.07] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute bottom-20 left-10 w-56 h-56 rounded-full bg-[#FFA500] opacity-[0.06] blur-3xl pointer-events-none"
+          animate={{ scale: [1, 1.2, 1], opacity: [0.06, 0.09, 0.06] }}
+          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
 
         <div className="container-pm relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center">
@@ -122,8 +180,8 @@ export default function HomePage() {
               </motion.h1>
 
               <motion.p variants={fadeUp} custom={2} className="text-subheading mb-14">
-                Un site web qui vous ressemble, livré clé en main. 
-                Pas de jargon, pas de mauvaises surprises. Juste un beau site.
+                Un site à votre image, livré clé en main en moins de 2 semaines.
+                Sans jargon, sans mauvaise surprise — juste exactement ce dont vous avez besoin.
               </motion.p>
 
               <motion.div variants={fadeUp} custom={3} className="flex flex-wrap items-center gap-6 mb-16">
@@ -154,7 +212,7 @@ export default function HomePage() {
               </motion.div>
             </motion.div>
 
-            {/* Right - AI-generated mockup images */}
+            {/* Right - Mockup images */}
             <motion.div
               initial={{ opacity: 0, x: 60, scale: 0.95 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -219,25 +277,18 @@ export default function HomePage() {
       {/* ═══════════════════════ SOCIAL PROOF ═══════════════════════ */}
       <section className="section-pm bg-white/50">
         <div className="container-pm">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={stagger}
-            className="flex flex-wrap items-center justify-center gap-14 md:gap-24"
-          >
+          <div className="flex flex-wrap items-center justify-center gap-0 md:divide-x divide-[var(--pm-border)]">
             {[
               { number: "120+", label: "sites créés" },
               { number: "100%", label: "clients propriétaires" },
               { number: "7j", label: "délai moyen" },
               { number: "4.9/5", label: "satisfaction client" },
             ].map((stat) => (
-              <motion.div key={stat.label} variants={fadeUp} className="text-center">
-                <p className="text-4xl md:text-5xl font-bold text-[var(--pm-indigo)]">{stat.number}</p>
-                <p className="text-sm text-[var(--pm-muted)] mt-2">{stat.label}</p>
-              </motion.div>
+              <div key={stat.label} className="px-8 py-6 md:px-12 text-center">
+                <AnimatedCounter value={stat.number} label={stat.label} />
+              </div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -256,8 +307,9 @@ export default function HomePage() {
               Des prix clairs. Pas de surprise.
             </motion.h2>
             <motion.p variants={fadeUp} className="text-subheading max-w-2xl mx-auto">
-              Choisissez la formule qui correspond à votre projet. 
-              Chaque tarif inclut tout : design, développement, et accompagnement. Aucune compétence n'est requise, on s'occupe de tout. Pour les images et les textes, on vous les demande simplement une fois la commande validée. Vous choisissez, on fait le reste.
+              Choisissez la formule qui correspond à votre projet.
+              Chaque tarif inclut tout : design, développement et accompagnement.
+              Vous choisissez, on crée le reste.
             </motion.p>
           </motion.div>
 
@@ -312,12 +364,12 @@ export default function HomePage() {
             transition={{ delay: 0.6 }}
             className="text-center text-sm text-[var(--pm-muted)] mt-12"
           >
-            Tous les prix sont TTC. Paiement en 2 ou 3 fois possible. Devis personnalisé sur demande.
+            Tous les prix sont TTC · Paiement en 2 ou 3 fois possible · Devis personnalisé sur demande
           </motion.p>
         </div>
       </section>
 
-      {/* ═══════════════════════ NOTRE VÉRITÉ ═══════════════════════ */}
+      {/* ═══════════════════════ NOTRE MÉTHODE ═══════════════════════ */}
       <section className="section-pm bg-[var(--pm-peach)]/30">
         <div className="container-pm">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-28 items-center">
@@ -328,18 +380,22 @@ export default function HomePage() {
               viewport={{ once: true, margin: "-80px" }}
               variants={stagger}
             >
-              <motion.span variants={fadeUp} className="text-label mb-4 block">Notre vérité</motion.span>
+              <motion.span variants={fadeUp} className="text-label mb-4 block">Notre méthode</motion.span>
               <motion.h2 variants={fadeUp} className="text-heading mb-8">
                 On ne vend pas du rêve. On crée le vôtre.
               </motion.h2>
+              <motion.p variants={fadeUp} className="text-body mb-6">
+                Chez Pagemaker, on parle comme vous. Pas de termes techniques, pas de fausse promesse.
+                Vous voulez un beau site qui marche ? On s’en occupe.
+              </motion.p>
               <motion.p variants={fadeUp} className="text-body mb-12">
-                Chez Pagemaker, on parle comme vous. On ne vous noiera jamais sous des termes techniques. 
-                Vous voulez un beau site qui marche ? On s'en occupe. Vous voulez comprendre ce qu'on fait ? On vous explique.
+                Vous restez propriétaire de tout, dès le premier jour.
+                C’est notre engagement, pas un argument de vente.
               </motion.p>
               <motion.div variants={fadeUp}>
                 <MagneticButton>
                   <Link href="/notre-verite" className="btn-secondary">
-                    Découvrir notre méthode <ArrowRight size={16} />
+                    Découvrir notre approche <ArrowRight size={16} />
                   </Link>
                 </MagneticButton>
               </motion.div>
@@ -384,8 +440,11 @@ export default function HomePage() {
           >
             <motion.span variants={fadeUp} className="text-label mb-4 block">Comment ça marche</motion.span>
             <motion.h2 variants={fadeUp} className="text-heading">
-              3 étapes. C'est tout.
+              Simple comme bonjour.
             </motion.h2>
+            <motion.p variants={fadeUp} className="text-subheading max-w-xl mx-auto mt-6">
+              De votre première idée à la mise en ligne, on est avec vous à chaque étape.
+            </motion.p>
           </motion.div>
 
           <motion.div
@@ -393,18 +452,27 @@ export default function HomePage() {
             whileInView="visible"
             viewport={{ once: true, margin: "-40px" }}
             variants={stagger}
-            className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16"
+            className="relative grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8"
           >
+            {/* Connecting line (desktop only) */}
+            <div className="absolute hidden md:block top-10 left-[calc(16.67%+2rem)] right-[calc(16.67%+2rem)] h-[2px] bg-gradient-to-r from-[var(--pm-peach)] via-[var(--pm-coral)]/30 to-[var(--pm-peach)]" />
+
             {[
-              { step: "01", icon: Palette, title: "On en parle", desc: "Vous nous racontez votre projet. On vous propose un design et un devis. Gratuit, sans engagement." },
-              { step: "02", icon: Code, title: "On le crée", desc: "Notre équipe conçoit votre site. Vous validez chaque étape. On ne code rien tant que vous n'avez pas dit oui." },
-              { step: "03", icon: Globe, title: "C'est en ligne", desc: "Votre site est publié. On vous forme à le gérer. Et on reste disponible si vous avez besoin." },
+              { step: "01", icon: Palette, title: "On en parle", desc: "Racontez-nous votre projet — par téléphone, visio ou email. On propose un design et un devis. Gratuit, sans engagement." },
+              { step: "02", icon: Code, title: "On le crée", desc: "Notre équipe conçoit votre site étape par étape. Vous validez chaque décision. On ne code rien sans votre accord." },
+              { step: "03", icon: Globe, title: "C'est en ligne", desc: "Votre site est publié et vous êtes formé pour le gérer. On reste disponibles si vous avez la moindre question — même plus tard." },
             ].map((s, i) => (
-              <motion.div key={s.step} variants={fadeUp} custom={i} className="text-center">
-                <div className="inline-flex items-center justify-center w-18 h-18 rounded-2xl bg-[var(--pm-peach)] mb-7">
+              <motion.div key={s.step} variants={fadeUp} custom={i} className="text-center relative">
+                <motion.div
+                  className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-[var(--pm-peach)] mb-7 relative"
+                  whileHover={{ scale: 1.08, rotate: 3 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 15 }}
+                >
                   <s.icon size={30} className="text-[var(--pm-coral)]" />
-                </div>
-                <p className="text-xs font-bold text-[var(--pm-coral)] mb-3">Étape {s.step}</p>
+                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-[var(--pm-coral)] text-white text-xs font-bold flex items-center justify-center">
+                    {parseInt(s.step)}
+                  </span>
+                </motion.div>
                 <h3 className="text-lg font-semibold text-[var(--pm-indigo)] mb-4">{s.title}</h3>
                 <p className="text-sm text-[var(--pm-slate)] leading-relaxed max-w-xs mx-auto">{s.desc}</p>
               </motion.div>
@@ -424,15 +492,24 @@ export default function HomePage() {
             className="bg-[var(--pm-indigo)] rounded-3xl p-14 md:p-24 text-center relative overflow-hidden"
           >
             {/* Decorative circles */}
-            <div className="absolute top-0 left-0 w-64 h-64 rounded-full bg-[var(--pm-coral)] opacity-10 blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-            <div className="absolute bottom-0 right-0 w-48 h-48 rounded-full bg-[#FFA500] opacity-10 blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none" />
+            <motion.div
+              className="absolute top-0 left-0 w-72 h-72 rounded-full bg-[var(--pm-coral)] opacity-10 blur-3xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute bottom-0 right-0 w-56 h-56 rounded-full bg-[#FFA500] opacity-10 blur-3xl translate-x-1/3 translate-y-1/3 pointer-events-none"
+              animate={{ scale: [1, 1.3, 1] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+            />
 
             <div className="relative z-10">
               <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
                 Prêt à avoir un site qui vous ressemble ?
               </h2>
               <p className="text-white/60 text-lg mb-12 max-w-lg mx-auto">
-                Pas d'engagement, pas de jargon. Juste un échange humain pour comprendre votre projet.
+                Un échange de 15 minutes suffit pour comprendre votre projet.
+                On vous rappelle dans la journée.
               </p>
               <MagneticButton glow shine strength={0.25}>
                 <Link href="/contact" className="btn-primary text-base py-4 px-10 bg-white text-[var(--pm-indigo)] hover:bg-[var(--pm-cream)]">
@@ -446,3 +523,4 @@ export default function HomePage() {
     </div>
   );
 }
+
