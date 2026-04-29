@@ -257,7 +257,7 @@ export default function HomePage() {
             </motion.h2>
             <motion.p variants={fadeUp} className="text-subheading max-w-2xl mx-auto">
               Choisissez la formule qui correspond à votre projet. 
-              Chaque tarif inclut tout : design, développement, et accompagnement.
+              Chaque tarif inclut tout : design, développement, et accompagnement. Aucune compétence n'est requise, on s'occupe de tout. Pour les images et les textes, on vous les demande simplement une fois la commande validée. Vous choisissez, on fait le reste.
             </motion.p>
           </motion.div>
 

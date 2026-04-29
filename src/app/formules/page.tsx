@@ -218,8 +218,7 @@ export default function FormulesPage() {
             </motion.h1>
 
             <motion.p variants={fadeUp} className="text-subheading max-w-xl">
-              Chaque tarif inclut le design, le développement, la formation, et l'accompagnement.
-              Vous choisissez, on s'occupe du reste.
+              Chaque tarif inclut le design, le développement, la formation, et l'accompagnement. Aucune compétence n'est requise de votre côté, on s'occupe de tout. Les images et vos textes ? On vous les demande juste au bon moment. Vous choisissez, on s'occupe du reste.
             </motion.p>
           </motion.div>
         </div>
